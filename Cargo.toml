@@ -1,0 +1,38 @@
+[package]
+name = "rpi-gpio-api"
+version = "0.1.0"
+license = "MIT"
+description = "REST API server for controlling Raspberry Pi GPIO"
+authors = ["Hiroshi Ochiai"]
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.6", features = ["macros"] }
+clap = { version = "4", features = ["derive"] }
+rppal = "0.14"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "signal"] }
+
+[build-dependencies]
+regex = "1"
+
+[package.metadata.deb]
+license-file = ["LICENSE", "0"]
+assets = [
+  ["target/armv7-unknown-linux-gnueabihf/release/rpi-gpio-api", "/usr/bin/rpi-gpio-api", "755"],
+  ["LICENSE", "/usr/share/doc/rpi-gpio-api/copyright", "644"],
+  ["target/license/third-party-notices.txt", "/usr/share/doc/rpi-gpio-api/third-party-notices.txt", "644"],
+  ["target/openapi/rpi-gpio-api.html", "/usr/share/doc/rpi-gpio-api/rpi-gpio-api.html", "644"],
+  ["target/openapi/rpi-gpio-api.yaml", "/usr/share/doc/rpi-gpio-api/rpi-gpio-api.yaml", "644"],
+]
+depends = "$auto"
+maintainer-scripts = "scripts/"
+
+[package.metadata.deb.systemd-units]
+unit-scripts = "scripts/"
+unit-name = "rpi-gpio-api"
+enable = true
+start = true
+restart-after-upgrade = true
+stop-on-upgrade = true

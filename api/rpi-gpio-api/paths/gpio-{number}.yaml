@@ -1,0 +1,52 @@
+get:
+  operationId: get-gpio
+  tags:
+    - GPIO
+  summary: Get GPIO
+  parameters:
+    - name: number
+      in: path
+      required: true
+      schema:
+        $ref: ../components/schemas/gpio_number.yaml
+  responses:
+    '200':
+      $ref: ../components/schemas/GPIO-200.yaml
+    '404':
+      $ref: ../components/schemas/ResourceIsNotFound-404.yaml
+    '500':
+      $ref: ../components/schemas/InternalServerError-500.yaml
+patch:
+  operationId: patch-gpio
+  tags:
+    - GPIO
+  summary: Set GPIO
+  parameters:
+    - name: number
+      in: path
+      required: true
+      schema:
+        $ref: ../components/schemas/gpio_number.yaml
+  requestBody:
+    content:
+      application/json; charset=UTF-8:
+        schema:
+          $ref: ../components/schemas/GPIO.yaml
+  responses:
+    '200':
+      $ref: ../components/schemas/GPIO-200.yaml
+    '400':
+      description: Invalid request body
+      content:
+        application/json; charset=UTF-8:
+          schema:
+            $ref: ../components/schemas/Error.yaml
+          examples:
+            InvalidJSON:
+              $ref: ../components/examples/InvalidJSON.yaml
+            ValueDoesNotFollowTheRule:
+              $ref: ../components/examples/ValueDoesNotFollowTheRule.yaml
+    '404':
+      $ref: ../components/schemas/ResourceIsNotFound-404.yaml
+    '500':
+      $ref: ../components/schemas/InternalServerError-500.yaml

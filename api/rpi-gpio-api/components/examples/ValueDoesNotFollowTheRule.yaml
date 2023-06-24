@@ -1,0 +1,6 @@
+summary: Value does not follow the rule
+value:
+  title: Invalid request body
+  status: 400
+  detail: '''{value}'' does not follow the rule for ''{key}'': {error}'
+  instance: src/api/gpio.rs:130

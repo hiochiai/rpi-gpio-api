@@ -1,0 +1,25 @@
+get:
+  operationId: get-version
+  tags:
+    - Version
+  summary: Get Version
+  description: Get API Version
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json; charset=UTF-8:
+          schema:
+            type: object
+            properties:
+              version:
+                type: string
+                example: "0.1.0"
+                description: Version
+              api_version:
+                type: string
+                example: "0.1.0"
+                description: API Version
+            required:
+              - version
+              - api_version

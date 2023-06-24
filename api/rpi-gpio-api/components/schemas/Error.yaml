@@ -1,0 +1,21 @@
+type: object
+title: Error response body
+properties:
+  title:
+    type: string
+    description: Error title.
+  status:
+    type: integer
+    format: int32
+    description: HTTP response status code.
+  detail:
+    type: string
+    description: Error details.
+  instance:
+    type: string
+    description: A string to identify the error (the string may change depending on the version).
+required:
+  - title
+  - status
+  - detail
+  - instance

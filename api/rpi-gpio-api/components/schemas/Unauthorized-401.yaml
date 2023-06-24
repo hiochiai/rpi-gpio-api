@@ -1,0 +1,6 @@
+# FIXME
+description: 認証情報が不足しているか、正しくありません。
+headers:
+  WWW-Authenticate:
+    schema:
+      type: string

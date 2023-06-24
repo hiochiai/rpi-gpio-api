@@ -1,0 +1,85 @@
+name: Deploy document and package
+
+on: push
+
+permissions:
+  contents: write
+
+jobs:
+  Deploy-API-Document:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: |
+          npm install -g @redocly/cli@1.0.0-beta.128
+          mkdir -p target/openapi/latest
+          cp -a api/index.html target/openapi
+          redocly bundle api/rpi-gpio-api/openapi.yaml -o target/openapi/latest/rpi-gpio-api.yaml
+          redocly build-docs target/openapi/latest/rpi-gpio-api.yaml -o target/openapi/latest/rpi-gpio-api.html
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: rpi-gpio-api
+          path: target/openapi/
+          retention-days: 1
+
+      - uses: actions/checkout@v3
+        with:
+          ref: "gh-pages"
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: rpi-gpio-api
+          path: pages/api
+      - if: ${{github.ref == 'refs/heads/main'}}
+        run: cp -a pages/api/latest pages/api/main
+      - if: ${{github.ref_type == 'tag'}}
+        run: cp -a pages/api/latest pages/api/${{github.ref_name}}
+
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: pages/api
+
+  Generate-and-Deploy-DEB:
+    if: ${{github.ref_type == 'tag'}}
+
+    runs-on: ubuntu-20.04
+    needs:
+      - Deploy-API-Document
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: rpi-gpio-api
+          path: pages/api
+      - run: |
+          mkdir -p target/openapi
+          cp -a pages/api/latest/* target/openapi/
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.70.0
+          targets: armv7-unknown-linux-gnueabihf
+
+      - run: |
+          mkdir -p target/license
+          cargo install cargo-license
+          cargo license --avoid-build-deps --avoid-dev-deps --tsv >target/license/third-party-notices.txt
+
+      - run: |
+          sudo apt-get update
+          sudo apt-get install gcc-arm-linux-gnueabihf -y
+          cargo install cargo-deb 
+          cargo deb --target=armv7-unknown-linux-gnueabihf
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: rpi-gpio-api.deb
+          path: target/armv7-unknown-linux-gnueabihf/debian/rpi-gpio-api*.deb
+          retention-days: 1

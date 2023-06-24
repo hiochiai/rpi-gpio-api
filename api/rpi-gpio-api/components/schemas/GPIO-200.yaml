@@ -1,0 +1,14 @@
+content:
+  application/json; charset=UTF-8:
+    schema:
+      allOf:
+      - $ref: GPIO.yaml
+      - required:
+        - function
+        - level
+    examples:
+      options:
+        value:
+          function: input
+          level: low
+description: OK

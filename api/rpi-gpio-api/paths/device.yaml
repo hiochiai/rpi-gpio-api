@@ -1,0 +1,10 @@
+get:
+  operationId: get-device
+  tags:
+    - Device
+  summary: Get Device Information
+  responses:
+    '200':
+      $ref: ../components/schemas/Device-200.yaml
+    '500':
+      $ref: ../components/schemas/InternalServerError-500.yaml

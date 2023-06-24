@@ -1,0 +1,24 @@
+name: Check
+
+on: push
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  Check-Rust-Source-Code:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.70.0
+          targets: armv7-unknown-linux-gnueabihf
+          components: clippy, rustfmt
+      - run: |
+          rustc --version
+          cargo --version
+          cargo check --verbose
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --all-features -- -D warnings

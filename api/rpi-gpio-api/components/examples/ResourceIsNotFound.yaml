@@ -1,0 +1,6 @@
+summary: Resource is not found
+value:
+  title: Resource is not found
+  status: 404
+  detail: '''{id}'' is not found: {error}'
+  instance: src/api/gpio.rs:130

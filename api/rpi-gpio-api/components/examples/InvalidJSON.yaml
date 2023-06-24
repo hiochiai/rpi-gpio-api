@@ -1,0 +1,6 @@
+summary: Invalid JSON
+value:
+  title: Invalid JSON
+  status: 400
+  detail: 'invalid json: {error}'
+  instance: src/api/gpio.rs:130

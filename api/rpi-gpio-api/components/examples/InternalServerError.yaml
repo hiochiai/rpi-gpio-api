@@ -1,0 +1,6 @@
+summary: Internal Server Error
+value:
+  title: Internal Server Error
+  status: 500
+  detail: 'unexpected error: {error}'
+  instance: 'src/api/gpio.rs:130'

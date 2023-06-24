@@ -1,0 +1,8 @@
+description: Resource is not found
+content:
+  application/json; charset=UTF-8:
+    schema:
+      $ref: Error.yaml
+    examples:
+      ResourceIsNotFound:
+        $ref: ../examples/ResourceIsNotFound.yaml

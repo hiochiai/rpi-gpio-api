@@ -1,0 +1,23 @@
+openapi: 3.0.2
+info:
+  version: 0.1.0
+  title: RPi GPIO API
+servers:
+  - url: http://raspberrypi.local:8008/api
+paths:
+  /device:
+    $ref: paths/device.yaml
+  /gpio/{number}:
+    $ref: paths/gpio-{number}.yaml
+  /version:
+    $ref: paths/version.yaml
+x-tagGroups:
+  - name: Device
+    tags:
+      - Device
+  - name: GPIO
+    tags:
+      - GPIO
+  - name: Other
+    tags:
+      - Version

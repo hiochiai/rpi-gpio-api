@@ -1,0 +1,8 @@
+description: Internal Server Error
+content:
+  application/json; charset=UTF-8:
+    schema:
+      $ref: Error.yaml
+    examples:
+      InternalServerError:
+        $ref: ../examples/InternalServerError.yaml

@@ -1,0 +1,10 @@
+[Unit]
+Description=RPi GPIO API
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/rpi-gpio-api serve --address=0.0.0.0:8008
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+type: object
+properties:
+  model:
+    type: string
+    example: Raspberry Pi 3 B
+    description: Raspberry Pi’s model
