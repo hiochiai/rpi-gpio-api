@@ -1,0 +1,249 @@
+openapi: 3.0.2
+info:
+  version: 0.1.0
+  title: RPi GPIO API
+servers:
+  - url: http://raspberrypi.local:8008/api
+paths:
+  /device:
+    get:
+      operationId: get-device
+      tags:
+        - Device
+      summary: Get Device Information
+      responses:
+        '200':
+          $ref: '#/components/responses/Device-200'
+        '500':
+          $ref: '#/components/responses/InternalServerError-500'
+  /gpio/{number}:
+    get:
+      operationId: get-gpio
+      tags:
+        - GPIO
+      summary: Get GPIO
+      parameters:
+        - name: number
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/gpio_number'
+      responses:
+        '200':
+          $ref: '#/components/responses/GPIO-200'
+        '404':
+          $ref: '#/components/responses/ResourceIsNotFound-404'
+        '500':
+          $ref: '#/components/responses/InternalServerError-500'
+    patch:
+      operationId: patch-gpio
+      tags:
+        - GPIO
+      summary: Set GPIO
+      parameters:
+        - name: number
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/gpio_number'
+      requestBody:
+        content:
+          application/json; charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/GPIO'
+      responses:
+        '200':
+          $ref: '#/components/responses/GPIO-200'
+        '400':
+          description: Invalid request body
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                InvalidJSON:
+                  $ref: '#/components/examples/InvalidJSON'
+                ValueDoesNotFollowTheRule:
+                  $ref: '#/components/examples/ValueDoesNotFollowTheRule'
+        '404':
+          $ref: '#/components/responses/ResourceIsNotFound-404'
+        '500':
+          $ref: '#/components/responses/InternalServerError-500'
+  /version:
+    get:
+      operationId: get-version
+      tags:
+        - Version
+      summary: Get Version
+      description: Get API Version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    example: 0.1.0
+                    description: Version
+                  api_version:
+                    type: string
+                    example: 0.1.0
+                    description: API Version
+                required:
+                  - version
+                  - api_version
+components:
+  schemas:
+    Device:
+      type: object
+      properties:
+        model:
+          type: string
+          example: Raspberry Pi 3 B
+          description: Raspberry Pi’s model
+    Error:
+      type: object
+      title: Error response body
+      properties:
+        title:
+          type: string
+          description: Error title.
+        status:
+          type: integer
+          format: int32
+          description: HTTP response status code.
+        detail:
+          type: string
+          description: Error details.
+        instance:
+          type: string
+          description: A string to identify the error (the string may change depending on the version).
+      required:
+        - title
+        - status
+        - detail
+        - instance
+    gpio_number:
+      type: integer
+      example: 23
+      description: GPIO number.
+    GPIO:
+      type: object
+      properties:
+        function:
+          type: string
+          enum:
+            - input
+            - output
+            - alt0
+            - alt1
+            - alt2
+            - alt3
+            - alt4
+            - alt5
+          description: |-
+            Defines the operation of the GPIO.
+            - `"input"` - 0b000 = GPIO Pin is an input 
+            - `"output"` - 0b001 = GPIO Pin is an output 
+            - `"alt0"` - 0b100 = GPIO Pin takes alternate function 0
+            - `"alt1"` - 0b101 = GPIO Pin takes alternate function 1
+            - `"alt2"` - 0b110 = GPIO Pin takes alternate function 2
+            - `"alt3"` - 0b111 = GPIO Pin takes alternate function 3
+            - `"alt4"` - 0b011 = GPIO Pin takes alternate function 4
+            - `"alt5"` - 0b010 = GPIO Pin takes alternate function 5
+
+            For more details, refer to [BCM2835-ARM-Peripherals.pdf](https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf#page=89)
+        level:
+          type: string
+          enum:
+            - low
+            - high
+          description: |-
+            Actual value of the GPIO.
+            - `"low"` - GPIO Pin is low 
+            - `"high"` - GPIO Pin is high
+  responses:
+    Device-200:
+      content:
+        application/json; charset=UTF-8:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Device'
+              - required:
+                  - model
+      description: OK
+    InternalServerError-500:
+      description: Internal Server Error
+      content:
+        application/json; charset=UTF-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            InternalServerError:
+              $ref: '#/components/examples/InternalServerError'
+    GPIO-200:
+      content:
+        application/json; charset=UTF-8:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/GPIO'
+              - required:
+                  - function
+                  - level
+          examples:
+            options:
+              value:
+                function: input
+                level: low
+      description: OK
+    ResourceIsNotFound-404:
+      description: Resource is not found
+      content:
+        application/json; charset=UTF-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ResourceIsNotFound:
+              $ref: '#/components/examples/ResourceIsNotFound'
+  examples:
+    InternalServerError:
+      summary: Internal Server Error
+      value:
+        title: Internal Server Error
+        status: 500
+        detail: 'unexpected error: {error}'
+        instance: src/api/gpio.rs:130
+    ResourceIsNotFound:
+      summary: Resource is not found
+      value:
+        title: Resource is not found
+        status: 404
+        detail: '''{id}'' is not found: {error}'
+        instance: src/api/gpio.rs:130
+    InvalidJSON:
+      summary: Invalid JSON
+      value:
+        title: Invalid JSON
+        status: 400
+        detail: 'invalid json: {error}'
+        instance: src/api/gpio.rs:130
+    ValueDoesNotFollowTheRule:
+      summary: Value does not follow the rule
+      value:
+        title: Invalid request body
+        status: 400
+        detail: '''{value}'' does not follow the rule for ''{key}'': {error}'
+        instance: src/api/gpio.rs:130
+x-tagGroups:
+  - name: Device
+    tags:
+      - Device
+  - name: GPIO
+    tags:
+      - GPIO
+  - name: Other
+    tags:
+      - Version
