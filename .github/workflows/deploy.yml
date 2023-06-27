@@ -6,7 +6,7 @@ permissions:
   contents: write
 
 jobs:
-  Deploy-API-Document:
+  Generate-API-Document:
     runs-on: ubuntu-20.04
 
     steps:
@@ -16,10 +16,9 @@ jobs:
           node-version: 18
       - run: |
           npm install -g @redocly/cli@1.0.0-beta.128
-          mkdir -p target/openapi/latest
-          cp -a api/index.html target/openapi
-          redocly bundle api/rpi-gpio-api/openapi.yaml -o target/openapi/latest/rpi-gpio-api.yaml
-          redocly build-docs target/openapi/latest/rpi-gpio-api.yaml -o target/openapi/latest/rpi-gpio-api.html
+          mkdir -p target/openapi
+          redocly bundle api/rpi-gpio-api/openapi.yaml -o target/openapi/rpi-gpio-api.yaml
+          redocly build-docs target/openapi/rpi-gpio-api.yaml -o target/openapi/rpi-gpio-api.html
 
       - uses: actions/upload-artifact@v3
         with:
@@ -27,14 +26,25 @@ jobs:
           path: target/openapi/
           retention-days: 1
 
+  Deploy-API-Document:
+    runs-on: ubuntu-20.04
+    needs:
+      - Generate-API-Document
+
+    steps:
       - uses: actions/checkout@v3
         with:
           ref: "gh-pages"
+          path: pages/api
+
+      - run: |
+          rm -rf pages/api/.git
+          rm -f pages/api/.nojekyll
 
       - uses: actions/download-artifact@v3
         with:
           name: rpi-gpio-api
-          path: pages/api
+          path: pages/api/latest
       - if: ${{github.ref == 'refs/heads/main'}}
         run: cp -a pages/api/latest pages/api/main
       - if: ${{github.ref_type == 'tag'}}
@@ -50,14 +60,14 @@ jobs:
 
     runs-on: ubuntu-20.04
     needs:
-      - Deploy-API-Document
+      - Generate-API-Document
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: rpi-gpio-api
-          path: pages/api
+          path: pages/api/latest
       - run: |
           mkdir -p target/openapi
           cp -a pages/api/latest/* target/openapi/
